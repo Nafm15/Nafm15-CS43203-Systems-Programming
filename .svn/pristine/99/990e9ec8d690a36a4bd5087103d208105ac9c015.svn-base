@@ -1,0 +1,324 @@
+Answer to question 1:
+Because int *p is declared in main functio but not initilised. It is initialised locally in the funct when passed by reference.
+So, p points to  null.It has to be initialised before passing it by reference to the function funct.
+When value of a null pointer is printed then it will give segmentation fault error.
+
+
+Answer to question 2:
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char *argv){
+   if(argc > 1){
+       int len;
+       char word[100];
+       char fword[100];
+       FILE *fp = fopen(argv[1], "r");
+       if(fp != NULL){
+           printf("Enter a string: ");
+           scanf("%s", word);
+           len = strlen(word);
+           while(fscanf(fp, "%s", fword) != EOF){
+               if(strncmp(word, fword, len) == 0){
+                   printf("%s\n", fword);
+               }
+           }
+       }
+       fclose(fp);
+   }
+   return 0;
+}
+
+
+Answer to question 3:
+The purpose of the following UNIX files are:
+ls- lists all the files
+cat- concatenate- allows us to create files, concatenate files
+rm -removes a file
+cp -copies a file
+mv- moves a file
+mkdir- creates a new directory
+cc- calls the compiler
+
+
+Answer to question 4:
+The original txt file I created just said "Hello, my name is Nafees Mahmood. Nice to meet you". I then created a new file containing
+5 repetions of the above sentence, using the cat command. Then when I used the wc command on file1, its output was:
+1(no.of lines) 10(no.of words) 52(no. of characters file1.txt(file name). The output of file2 was: 5(no.of lines) 50(no.of words) 260(no.of characters) file2.txt.
+
+Answer to question 5:
+#include <stdio.h>
+
+int main()
+{
+printf("Hello world\n");
+return 0;
+}
+
+
+Answer to question 6:
+#include <stdio.h>
+ 
+void main(int argc, char *argv[])    /* command line Arguments */
+{
+    int i;
+    for (i = 0;i < argc;i++)
+    {
+        printf("%s ", argv[i]);        /* Printing the string */
+    }
+    printf("\n");
+}
+
+
+Answer to question 7:
+#include <stdio.h>
+#include <Stdlib.h>
+
+int main()
+{
+
+int c;				        //current character
+int last = '\n';		               //Previous
+int line_count = 0;		       //Number of lines
+int char_count;		       //Number of characters
+int word_count;		       //Number of Words
+
+
+while ((c = getchar()) != EOF)
+{
+    if (last == '\n')	//When 'Enter" is pressed
+    {
+        line_count++;
+    }
+
+    if (isprint(c))
+    {
+        char_count++;
+    }
+
+    if (isspace(last) && !isspace(c))
+    {
+       word_count++;
+     }
+
+      last = c;
+}
+printf("Number of Lines: %d\n", line_count);
+printf("Number of Letters: %d\n", char_count);
+printf("Number of Words: %d", word_count);
+
+return 0;
+}
+
+
+Answer to question 8:
+file1.c
+
+#include<stdio.h>
+void func()
+{
+printf("hello, world");
+}
+
+file2.c
+
+int main()
+{
+func();
+}
+
+In the terminal, we can write hw file1.c and file2.c to compile and link them.
+
+
+Answer to question 9:
+The meaning of the cat command is concatenate.
+cat command is used to read one file or more than one files and print the content of the files to standard output
+
+printf() function is used to display the output to the screen
+
+write(system call) is the basic routine unix os
+The main job is to write data from buffer declared by the user to a given device, mostly a file
+It is the important way to output data from a program by directyly using a sytem call
+
+
+Answer to question 9:
+/*CS4-53230: Systems Programming \
+/*Name: Nafees Mahmood \
+/*Date: 1/17/2020 \
+/*Assignment#1 Warm Up \
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+/*structure containing the information about the list*/
+
+struct numlist{
+    float *list;
+    int len;
+    float min;
+    float max;
+    float avg;
+};
+
+/*compute_stats function initializes the min,max and avg of the structure
+parameter:listptr - pointer to the numlist structure
+*/
+
+void compute_stats(struct numlist *listptr){
+    if(listptr->len > 0)  //if len < 1, no element in the list and no need to initialize the members
+    {
+        float min = (listptr->list)[0]; //min is 1st element
+        float max = (listptr->list)[0]; //max is 1st element
+        float sum = (listptr->list)[0]; //adds all the elements of the list
+
+        for(int i = 1; i <listptr->len; i++) //traverses the list
+        {
+            if((listptr->list)[i] > max) //if any element > max, update max
+                max = (listptr->list)[i];
+            else if((listptr->list)[i] < min) //if any element < min, update min
+                min = (listptr->list)[i];
+
+            sum += (listptr->list)[i]; //adds the elements
+        }
+
+        listptr->min = min;  //update the min of the structure
+        listptr->max = max;  //update the max of the structure
+        listptr->avg = sum/(listptr->len);  //update the sum of the structure
+    }
+}
+
+/*display function shows all the members of the numlist structure */
+void display(struct numlist *ptr){
+    printf("\n--list--\n");
+    for(int i = 0; i < ptr->len; i++)  //traverses the list
+    {
+        printf("%.2f", (ptr->list)[i]);
+    }
+
+    printf("\nlength of the list: %d", ptr->len);
+    printf("\nmax element in the list: %.2f", ptr->max);
+    printf("\nmin element in the list: %.2f", ptr->min);
+    printf("\nAverage: %.2f\n", ptr->avg);
+}
+
+/*main function to initialize the program */
+
+int main(int argc, char *argv[])
+{
+    struct numlist *ptr;  //pointer to the numlist structure
+    ptr = (struct numlist*)malloc(sizeof(struct numlist));  //allocates memory for the structure
+    if(NULL == ptr)
+    {
+        printf("Memory allocation failed!");
+        exit(-1);
+    }
+
+    int size;
+    if(size > 0)
+    {
+        printf("Enter the number of elements: ");
+        scanf("%d", &size);
+    }
+
+    ptr->list = (float *)malloc(sizeof(float)*size);  //allocate memory for the list of size specified by the size variable
+    if(NULL == ptr->list)  //if memory allocation fails
+    {
+        printf("Memory allocation failed!");
+        exit(-1);
+    }
+
+    ptr->len = size;  //len member of the structure is initialized
+
+    for(int i = 0; i < ptr->len; i++)  //traverse the empty list
+    {
+        printf("Enter the element %d: ", i+1);
+        scanf("%f", &(ptr->list)[i]);  //stores element entered by user
+    }
+
+    compute_stats(ptr);  //calls the compute_stats function to initialize all other members
+    display(ptr);  //displays numlist structure
+
+}
+
+
+
+Answer to question 11:
+Part 1:
+#include <stdio.h>
+#include<stdlib.h>
+int main(int argc,char* argv[])
+{
+char c[1000];
+int a=atoi(argv[1]);
+int b=atoi(argv[2]);
+FILE *fp = fopen(argv[3], "r");
+if(fp == NULL) {
+perror("Unable to open file!");
+exit(1);
+}
+
+char chunk[128];
+int i=0;
+while(fgets(chunk, sizeof(chunk), fp) != NULL) {
+i++;
+if(i>=a&&i<=b)
+fputs(chunk, stdout);
+}
+
+fclose(fp);
+return 0;
+}
+
+Part 2:
+#include<stdio.h>
+#include<stdlib.h>
+int main(int argc , char **argv)
+{
+
+    char *filename=(char *) malloc(sizeof(char) * 1000);
+    // reading the input argument filename
+    if(argc>1) {
+        filename = argv[1];
+    }
+    else {
+        //if input argument is not present taking the file name input from the console
+        printf("Enter the file Name: ");
+        scanf("%s", filename);
+    }
+    //for storing a single line from the file
+    char *line= (char *) malloc(sizeof(char)*1000);
+    int noOfLines=0;//calculating the number of lines in the file
+    size_t length=0;// size of each line
+    ssize_t read;
+    FILE *ptr; // file pointer
+    int count=0;
+    //trying to open a file
+    if((ptr= fopen(filename,"r"))==NULL)
+    {
+        printf("Cannot open the file");
+    }
+    //reading the file line by line and calculating the number of lines in the line
+    while((read=getline(&line,&length,ptr))!=-1)
+    {
+        noOfLines++;
+    }
+// closing the file
+    fclose(ptr);
+    //trying to open the file
+    if((ptr= fopen(filename,"r"))==NULL)
+    {
+        printf("Cannot open the file");
+    }
+    //reading the file line by line
+    while((read=getline(&line,&length,ptr))!=-1)
+    {
+        if(count>=(noOfLines-10)) // this count variable is used to check if we are at the last 10 lines
+            printf("%s\n",line);
+        count++;
+    }
+   //closing the file again
+    fclose(ptr);
+
+    return 0;
+}

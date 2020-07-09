@@ -1,0 +1,113 @@
+/* CS-43203: Systems Programming
+Name: Nafees Mahmood
+Assignment: Watch-final */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <utmp.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+
+#define REFRESH_INTERVAL 250
+#define MAX_ACCOUNTS 100
+
+int utmpid;
+
+char* AccountName; //User account
+char* WatchList[MAX_ACCOUNTS]; //Watching for other accounts
+
+struct utmp utmpData[MAX_ACCOUNTS];
+struct utmp utmpDataBuffer[MAX_ACCOUNTS];
+char* loginInfo[2] = {"y", "n"}; //y for logged in and n for logged out
+
+void refresh(struct utmp *oldList);
+
+int main(int argc, char* argv[])
+{
+    
+    int i;
+    int j;
+
+    if(argc < 2)  //check to see if enough number of users inputted
+        return -1;
+
+    if((utmpid = open(UTMP_FILE, O_RDONLY) == -1))
+       return -1;
+
+
+    int userAccount = argc - 1;
+    int refreshInterval = atoi(argv[1]);
+
+    if(refreshInterval)
+        --userAccount;
+    else
+        refreshInterval = REFRESH_INTERVAL;
+
+
+    memset(WatchList, 0 , MAX_ACCOUNTS);
+    for(i = argc - userAccount; i < argc; ++i)
+        WatchList[i - (argc - userAccount)] = argv[i];
+
+    AccountName = malloc(MAX_ACCOUNTS);
+
+    memset(AccountName, 0, MAX_ACCOUNTS);  //getting current user name
+    getlogin_r(AccountName, MAX_ACCOUNTS); //getting current user login info
+
+    printf("User logged in as: %s\n", AccountName); //print the user account name
+
+    int userLoggedIn = 0; //check to see user is not still logged in
+    int isSummary = 1;
+
+    int isLoggedIn;
+    int wasLoggedIn;
+    
+    while(userLoggedIn)
+    {
+        refresh(utmpData);
+
+        userLoggedIn = 0;
+
+        for(i = 0; i < userAccount; ++i)
+        {
+            isLoggedIn = 0;
+            wasLoggedIn = 0;
+
+            for(j = 0; strlen(utmpData[j].ut_name) || (strlen(utmpDataBuffer[j].ut_name)); ++j)
+            {
+                printf("WatchList[%d] = %s, Data = %s, and Buffer = %s \n", i, WatchList[i], utmpData[j].ut_name, utmpDataBuffer[j].ut_name);
+
+                if(strcmp(utmpData[j].ut_name, AccountName))
+                    userLoggedIn = 1;
+
+                if(!strcmp(utmpData[j].ut_name, WatchList[i]))
+                    isLoggedIn = 1;
+
+                if(!strcmp(utmpDataBuffer[j].ut_name, WatchList[i]))
+                    wasLoggedIn = 1;      
+            }
+        }
+
+        if(isLoggedIn != wasLoggedIn || isSummary)
+            printf("%s \t logged %s \n", WatchList[i], loginInfo[isLoggedIn ^ wasLoggedIn]);
+
+        isSummary = 0;
+
+        memcpy(utmpDataBuffer, utmpData, sizeof(utmpDataBuffer));
+
+        printf("\nResting for %d(s)", refreshInterval);
+    }
+
+    close(utmpid);
+
+    return 0;
+}
+
+
+void refresh(struct utmp *oldList)
+{
+    int  i = 0;
+    while(read(utmpid, &oldList[i], sizeof(oldList[i])) == sizeof(oldList[i]))
+        ++i;
+}
